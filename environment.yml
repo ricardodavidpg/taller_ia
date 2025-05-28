@@ -1,0 +1,17 @@
+name: obl_taller_ia
+channels:
+  - microsoft
+  - conda-forge
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.12
+  - conda-forge::pytorch
+  - conda-forge::jupyter
+  - conda-forge::torchinfo
+  - conda-forge::numpy
+  - conda-forge::ale-py
+  - conda-forge::gymnasium-box2d
+  - conda-forge::gymnasium-atari
+  - conda-forge::gymnasium-other
+  - conda-forge::gymnasium=1.0.0
