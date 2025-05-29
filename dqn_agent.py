@@ -57,11 +57,11 @@ class DQNAgent(Agent):
           
           # 4) Con torch.no_grad(): calcular q_max_next_state = policy_net(next_states).max(dim=1)[0] * (1 - dones)
           with torch.no_grad():
-              q_next_state_batch = self.policy_net(next_state_batch).max(dim=1)[0].unsqueeze(1)                          # Shape: (batch_size, 1) 
+              q_next_state_batch = self.policy_net(next_state_batch).max(dim=1)[0].unsqueeze(1)                             # Shape: (batch_size, 1) 
               # 5) Calcular target = rewards + gamma * max_q_next_state                 
               q_target_batch = rewards_batch + self.gamma * (q_next_state_batch * (1 - dones_batch))                        # Shape: (batch_size, 1)
               
           # 6) Computar loss MSE entre q_current y target, backprop y optimizer.step()
-          loss = self.loss(q_current_batch, q_target_batch)                                                             # Shape: (1,)
+          loss = self.loss(q_current_batch, q_target_batch)                                                           
           loss.backward()
           self.optim.step()
