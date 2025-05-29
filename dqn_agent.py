@@ -14,7 +14,7 @@ class DQNAgent(Agent):
         self.env = env
         self.state_processing_function = obs_processing_func
         # Inicializar policy_net en device
-        self.policy_net = DQN_CNN_Model(env.observation_space.shape, env.action_space.n).to(device)
+        self.policy_net = model.to(device)
         # Configurar función de pérdida MSE y optimizador Adam
         self.loss = nn.MSELoss()
         self.optim = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
