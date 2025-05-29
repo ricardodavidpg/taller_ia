@@ -52,7 +52,7 @@ class DQNAgent(Agent):
           next_state_batch = torch.stack(next_state_list).to(self.device)                                                   # Shape: (batch_size, 4, 84, 84)  
           
           # 3) Calcular q_next_state_max_batch = policy_net(next_states) 
-          q_state_batch = self.policy_net(state_batch)                                                                      # Shape: (batch_size, n_actions)                                                                                                          
+          q_state_batch = self.policy_net(state_batch)                                                                      # Shape: (batch_size, 4)                                                                                                          
           q_current_batch = q_state_batch.gather(dim=1, index=actions_batch)                                                # Shape: (batch_size, 1)
           
           # 4) Con torch.no_grad(): calcular q_max_next_state = policy_net(next_states).max(dim=1)[0] * (1 - dones)
