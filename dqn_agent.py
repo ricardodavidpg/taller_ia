@@ -19,7 +19,7 @@ class DQNAgent(Agent):
         self.loss = nn.MSELoss()
         self.optim = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
         # Crear replay memory de tamaño buffer_size
-        self.memory = ReplayMemory(memory_buffer_size)
+        self.memory = ReplayMemory(memory_buffer_size, obs_processing_func)
         # Almacenar batch_size, gamma y parámetros de epsilon-greedy
         self.batch_size = batch_size
         self.gamma = gamma
@@ -40,9 +40,9 @@ class DQNAgent(Agent):
 
     def update_weights(self):
       # 1) Comprobar que hay al menos batch_size muestras en memoria
-      if self.memory.__len__ < self.batch_size:
-          self.optim.reset_grad()
-          transtions = self.memory.sample(self.batch_size)
+      if len(self.memory) >= self.batch_size:
+          self.optim.zero_grad()
+          
           
 
       # 2) Muestrear minibatch y convertir a tensores (states, actions, rewards, dones, next_states)

@@ -57,9 +57,7 @@ class Agent(ABC):
             # TODO: Seleccionar acción epsilon-greedy usando select_action()
             action = self.select_action(state, current_episode_steps, train = True)
             # TODO: Ejecutar action = env.step(action)
-            next_state, reward, terminated, truncated, info = self.env.step(action)
-            # TODO: Procesar next_state con state_processing_function
-            next_state_phi = self.state_processing_function(next_state)
+            next_state, reward, terminated, truncated, _ = self.env.step(action)
             # TODO: Acumular reward y actualizar total_steps, current_episode_steps
             current_episode_reward += reward
             total_steps += 1
@@ -71,7 +69,6 @@ class Agent(ABC):
             self.update_weights()
             # TODO: Actualizar state y state_phi al siguiente estado
             state = next_state
-            state_phi = next_state_phi
             # TODO: Comprobar condición de done o límite de pasos de episodio y break
             if(done): break
         
