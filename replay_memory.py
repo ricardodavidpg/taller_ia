@@ -29,11 +29,11 @@ class ReplayMemory:
         """
         
         with torch.no_grad(): 
-          state_tensor = self.state_processing_function(state, self.add_device)                                   # Shape: (4,84,84)
-          action_tensor = torch.tensor(action, dtype=torch.int64, device=self.add_device).unsqueeze(0)            # Shape: (1,)  
-          reward_tensor = torch.tensor(reward, dtype=torch.float32, device=self.add_device).unsqueeze(0)          # Shape: (1,)
-          done_tensor = torch.tensor(float(done), dtype=torch.float32, device=self.add_device).unsqueeze(0)       # Shape: (1,)
-          next_state_tensor = self.state_processing_function(next_state, self.add_device)                         # Shape: (4,84,84)   
+          state_tensor = self.state_processing_function(state, self.device)                                   # Shape: (4,84,84)
+          action_tensor = torch.tensor(action, dtype=torch.int64, device=self.device).unsqueeze(0)            # Shape: (1,)  
+          reward_tensor = torch.tensor(reward, dtype=torch.float32, device=self.device).unsqueeze(0)          # Shape: (1,)
+          done_tensor = torch.tensor(float(done), dtype=torch.float32, device=self.device).unsqueeze(0)       # Shape: (1,)
+          next_state_tensor = self.state_processing_function(next_state, self.device)                         # Shape: (4,84,84)   
           
           new_transition = Transition(state_tensor, action_tensor, reward_tensor, done_tensor, next_state_tensor)
           if len(self.memory) < self.capacity:

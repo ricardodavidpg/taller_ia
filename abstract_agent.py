@@ -15,7 +15,7 @@ class Agent(ABC):
         self.state_processing_function = obs_processing_func
 
         # Asignarle memoria al agente 
-        self.memory = ReplayMemory(memory_buffer_size)
+        self.memory = ReplayMemory(memory_buffer_size, obs_processing_func)
 
         self.env = gym_env
 
@@ -47,29 +47,21 @@ class Agent(ABC):
         
         # Observar estado inicial como indica el algoritmo
         state, _ = self.env.reset()
-        state_phi = self.state_processing_function(state)
         current_episode_reward = 0.0
         current_episode_steps = 0
         done = False
 
         # Bucle principal de pasos dentro de un episodio
-        for _ in range(max_steps):
-            # TODO: Seleccionar acción epsilon-greedy usando select_action()
+        for _ in range(max_steps_episode):
             action = self.select_action(state, current_episode_steps, train = True)
-            # TODO: Ejecutar action = env.step(action)
             next_state, reward, terminated, truncated, _ = self.env.step(action)
-            # TODO: Acumular reward y actualizar total_steps, current_episode_steps
             current_episode_reward += reward
             total_steps += 1
             current_episode_steps += 1
-            # TODO: Almacenar transición en replay memory
             done = terminated or truncated
             self.memory.add(state, action, reward, done, next_state)
-            # TODO: Llamar a update_weights() para entrenar modelo
             self.update_weights()
-            # TODO: Actualizar state y state_phi al siguiente estado
             state = next_state
-            # TODO: Comprobar condición de done o límite de pasos de episodio y break
             if(done): break
         
         # Registro de métricas y progreso
