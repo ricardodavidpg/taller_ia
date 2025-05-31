@@ -10,23 +10,12 @@ import random
 class DQNAgent(Agent):
     def __init__(self, env, model, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma, epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device):
         super().__init__(env, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma, epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device)
-        # Guardar entorno y función de preprocesamiento
-        self.env = env
-        self.state_processing_function = obs_processing_func
         # Inicializar policy_net en device
         self.policy_net = model.to(device)
+        
         # Configurar función de pérdida MSE y optimizador Adam
         self.loss = nn.MSELoss()
         self.optim = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
-        # Crear replay memory de tamaño buffer_size
-        self.memory = ReplayMemory(memory_buffer_size, obs_processing_func)
-        # Almacenar batch_size, gamma y parámetros de epsilon-greedy
-        self.batch_size = batch_size
-        self.gamma = gamma
-        self.episode_block = episode_block
-        self.epsilon_anneal_steps = epsilon_anneal_steps
-        self.epsilon_f = epsilon_f
-        self.epsilon_i = epsilon_i
         
     def select_action(self, state, current_steps, train=True):
       epsilon = self.compute_epsilon(current_steps)

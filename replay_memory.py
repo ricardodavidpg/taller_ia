@@ -27,7 +27,6 @@ class ReplayMemory:
         Agrega una transición a la memoria.
         Si la memoria está llena, sobreescribe la transición más antigua.
         """
-        
         with torch.no_grad(): 
           state_tensor = self.state_processing_function(state, self.device)                                   # Shape: (4,84,84)
           action_tensor = torch.tensor(action, dtype=torch.int64, device=self.device).unsqueeze(0)            # Shape: (1,)  

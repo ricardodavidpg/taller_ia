@@ -53,7 +53,7 @@ class Agent(ABC):
 
         # Bucle principal de pasos dentro de un episodio
         for _ in range(max_steps_episode):
-            action = self.select_action(state, current_episode_steps, train = True)
+            action = self.select_action(state, total_steps, train = True)
             next_state, reward, terminated, truncated, _ = self.env.step(action)
             current_episode_reward += reward
             total_steps += 1
