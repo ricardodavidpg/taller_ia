@@ -72,11 +72,10 @@ class Agent(ABC):
         pbar.set_postfix(metrics)
 
       # Guardar el modelo entrenado  
-      torch.save(self.policy_net.state_dict(), "GenericDQNAgent.dat")
+      self.saveModel()
 
       return rewards
     
-        
     def compute_epsilon(self, steps_so_far):
         """
         Compute el valor de epsilon a partir del número de pasos dados hasta ahora.
@@ -117,4 +116,8 @@ class Agent(ABC):
 
     @abstractmethod
     def update_weights(self):
+        pass
+
+    @abstractmethod
+    def saveModel(self):
         pass

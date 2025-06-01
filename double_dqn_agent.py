@@ -73,3 +73,5 @@ class DoubleDQNAgent(Agent):
              self.target_net.load_state_dict(self.online_net.state_dict())
              self.sync_counter = self.sync_target
             
+    def saveModel(self):
+      torch.save(self.policy_net.state_dict(), "DDQNAgent.dat")  

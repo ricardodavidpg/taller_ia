@@ -54,3 +54,6 @@ class DQNAgent(Agent):
           loss = self.loss(q_current_batch, q_target_batch)                                                           
           loss.backward()
           self.optim.step()
+
+    def saveModel(self):
+      torch.save(self.policy_net.state_dict(), "DQNAgent.dat")
