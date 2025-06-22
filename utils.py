@@ -145,6 +145,7 @@ def plot_rewards_comparison(rewards1, rewards2, rewards3, labels, average_range 
     avg_rewards3 = np.array(rewards3).reshape((episode_ticks, average_range))
     avg_rewards3 = np.mean(avg_rewards3, axis=1)
 
+    plt.figure(figsize=(12, 6))
     plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards1, label=labels[0])
     plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards2, label=labels[1])
     plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards3, label=labels[2])
