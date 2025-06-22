@@ -107,3 +107,49 @@ def make_env(
     env = TransformReward(env, sign_fn)
     
     return env
+
+def plot_avg_reward_by_episode(rewards, average_range=1000):
+     episode_ticks = int(len(rewards) / average_range)
+     avg_rewards = np.array(rewards).reshape((episode_ticks, average_range))
+     avg_rewards = np.mean(avg_rewards, axis=1)
+    
+     plt.figure(figsize=(12, 6))
+     plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards)
+     plt.title("Episode Accumulated Reward")
+     plt.xlabel("Episode Number")
+     plt.ylabel("Reward")
+     plt.grid(True)
+     plt.show()
+
+def plot_rewards_by_episode(rewards):
+    plt.figure(figsize=(12, 6))
+    plt.plot(rewards, label="Reward per Episode")
+    plt.title("Reward per Episode")
+    plt.xlabel("Episode")
+    plt.ylabel("Reward")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("reward_per_episode.png")
+    plt.show()
+
+def plot_rewards_comparison(rewards1, rewards2, rewards3, labels, average_range = 1000):
+    episode_ticks = int(len(rewards1) / average_range)
+
+    avg_rewards1 = np.array(rewards1).reshape((episode_ticks, average_range))
+    avg_rewards1 = np.mean(avg_rewards1, axis=1)
+
+    avg_rewards2 = np.array(rewards2).reshape((episode_ticks, average_range))
+    avg_rewards2 = np.mean(avg_rewards2, axis=1)
+
+    avg_rewards3 = np.array(rewards3).reshape((episode_ticks, average_range))
+    avg_rewards3 = np.mean(avg_rewards3, axis=1)
+
+    plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards1, label=labels[0])
+    plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards2, label=labels[1])
+    plt.plot([i * average_range for i in range(episode_ticks)], avg_rewards3, label=labels[2])
+    plt.title("Episode Accumulated Reward Comparison")
+    plt.xlabel("Episode Number")
+    plt.ylabel("Reward")
+    plt.legend()
+    plt.show()

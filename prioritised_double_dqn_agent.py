@@ -32,7 +32,7 @@ class PrioritisedDoubleDQNAgent(Agent):
         self.epsilon_p = epsilon_p
 
         # Se sustituye la memoria por PriorisedReplayMemory
-        self.memory = PrioritisedReplayMemory(memory_buffer_size, obs_processing_func, alpha_p)
+        self.memory = PrioritisedReplayMemory(memory_buffer_size, obs_processing_func, alpha_p, epsilon_p)
       
     def select_action(self, state, current_steps, train=True):
       epsilon = self.compute_epsilon(current_steps)
@@ -56,9 +56,9 @@ class PrioritisedDoubleDQNAgent(Agent):
           actions_batch = torch.stack(actions_list).to(self.device)                                                         # Shape: (batch_size, 1)
           rewards_batch = torch.stack(reward_list).to(self.device)                                                          # Shape: (batch_size, 1)
           dones_batch = torch.stack(dones_list).to(self.device)                                                             # Shape: (batch_size, 1)
-          next_state_batch = torch.stack(next_state_list).to(self.device)
-          transitions_probabilities = transitions_probabilities.to(self.device)
-          transitions_index = transitions_index.to(self.device)                                                   # Shape: (batch_size, 4, 84, 84)  
+          next_state_batch = torch.stack(next_state_list).to(self.device)                                                   # Shape: (batch_size, 4, 84, 84)  
+          transitions_probabilities = transitions_probabilities.to(self.device)                                             # Shape: (batch_size) 
+          transitions_index = transitions_index.to(self.device)                                                             # Shape: (batch_size)
 
           # 3) Calcular q_state_batch = online_net(state_batch)
           q_state_batch = self.online_net(state_batch)                                                                      # Shape: (batch_size, 4)                                                                                                          
@@ -76,13 +76,12 @@ class PrioritisedDoubleDQNAgent(Agent):
           transitions_weights = (len(self.memory) * transitions_probabilities).pow(-self.beta_p)                            # Shape: (batch_size, 1)
           normalized_weights = transitions_weights / transitions_weights.max()   
           normalized_weights = normalized_weights.to(self.device)         
-          td_error = torch.abs(q_target_batch - q_current_batch)
-          for transition_index, td_error_index in zip(transitions_index, range(len(transitions_index))):
-              self.memory.transition_priorities[transition_index] = (td_error[td_error_index] + self.epsilon_p).item() # Actualizar prioridades de transición 
-          delta_weights = torch.sum(normalized_weights * td_error)       
-                                                                           
-          # 5) Computar loss MSE entre q_current y target, backprop y optimizer.step()                                                     
-          delta_weights.backward()
+          td_error = q_target_batch - q_current_batch
+          self.memory.update_priorities(transitions_index, torch.abs(td_error.squeeze(1)).detach()) 
+                                                                                 
+          # 5) Computar loss MSE entre q_current y target, backprop y optimizer.step()    
+          loss = (normalized_weights * td_error.pow(2)).mean()                                                 
+          loss.backward()
           self.optim.step()
           
           # 6) Decrementar contador y si llega a 0 copiar online_net → target_net
