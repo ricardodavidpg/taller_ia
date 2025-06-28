@@ -130,7 +130,6 @@ def plot_rewards_by_episode(rewards):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("reward_per_episode.png")
     plt.show()
 
 def plot_rewards_comparison(rewards1, rewards2, rewards3, labels, average_range = 1000):
@@ -153,4 +152,18 @@ def plot_rewards_comparison(rewards1, rewards2, rewards3, labels, average_range 
     plt.xlabel("Episode Number")
     plt.ylabel("Reward")
     plt.legend()
+    plt.show()
+
+def plot_rewards_by_episode_comparision(rewards1, rewards2, rewards3):
+    plt.figure(figsize=(12, 6))
+    plt.plot(rewards1, label="Reward per Episode")
+    plt.plot(rewards2, label="Reward per Episode")
+    plt.plot(rewards3, label="Reward per Episode")
+    plt.title("Reward per Episode")
+    plt.xlabel("Episode")
+    plt.ylabel("Reward")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("reward_per_episode.png")
     plt.show()

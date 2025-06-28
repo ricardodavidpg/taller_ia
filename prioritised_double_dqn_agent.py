@@ -9,7 +9,7 @@ import random
 
 class PrioritisedDoubleDQNAgent(Agent):
     def __init__(self, gym_env, model_a, model_b, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma,
-                 epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device, sync_target = 1000, alpha_p = 0.6, beta_p = 0.4, epsilon_p = 1e-6):
+                 epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, sync_target, alpha_p, beta_p_init, beta_p_max, beta_p_anneal_steps, epsilon_p, device):
         
         super().__init__(gym_env, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma, epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device)
         # Inicializar online_net (model_a) y target_net (model_b) en device
@@ -17,7 +17,7 @@ class PrioritisedDoubleDQNAgent(Agent):
         self.target_net = model_b.to(device)
         
         # Configurar función de pérdida MSE y optimizador Adam
-        self.loss = nn.MSELoss()
+        self.loss = nn.MSELoss(reduction='none')  
         self.optim = optim.Adam(self.online_net.parameters(), lr=learning_rate)
 
         # Almacenar sync_target
@@ -26,9 +26,12 @@ class PrioritisedDoubleDQNAgent(Agent):
         # Inicializar contador de pasos para sincronizar target
         self.sync_counter = sync_target
 
-
         self.alpha_p = alpha_p
-        self.beta_p = beta_p
+        self.beta_p_init = beta_p_init
+        self.beta_p = beta_p_init
+        self.beta_p_max = beta_p_max
+        self.beta_p_anneal_steps = beta_p_anneal_steps
+        
         self.epsilon_p = epsilon_p
 
         # Se sustituye la memoria por PriorisedReplayMemory
@@ -73,15 +76,16 @@ class PrioritisedDoubleDQNAgent(Agent):
           #    c) target_q = rewards + gamma * q_next * (1 - dones)
               q_target_batch = rewards_batch + self.gamma * (q_next * (1 - dones_batch))       
               
-          transitions_weights = (len(self.memory) * transitions_probabilities).pow(-self.beta_p)                            # Shape: (batch_size, 1)
-          normalized_weights = transitions_weights / transitions_weights.max()   
-          normalized_weights = normalized_weights.to(self.device)         
+          transitions_weights = (len(self.memory) * transitions_probabilities).pow(-self.beta_p).unsqueeze(1)               # Shape: (batch_size, 1)
+          normalized_weights = (transitions_weights / transitions_weights.max())                                            # Shape: (batch_size, 1)
           td_error = q_target_batch - q_current_batch
           self.memory.update_priorities(transitions_index, torch.abs(td_error.squeeze(1)).detach()) 
-                                                                                 
+          self.update_beta()
+
           # 5) Computar loss MSE entre q_current y target, backprop y optimizer.step()    
-          loss = (normalized_weights * td_error.pow(2)).mean()                                                 
-          loss.backward()
+          loss = self.loss(q_current_batch, q_target_batch) 
+          weighted_loss = (normalized_weights * loss).mean()                                                 
+          weighted_loss.backward()
           self.optim.step()
           
           # 6) Decrementar contador y si llega a 0 copiar online_net → target_net
@@ -91,4 +95,10 @@ class PrioritisedDoubleDQNAgent(Agent):
              self.sync_counter = self.sync_target
             
     def saveModel(self):
-      torch.save(self.online_net.state_dict(), "DDQNAgent.dat")  
+      torch.save(self.online_net.state_dict(), "PrioritisedDDQNAgent.dat") 
+
+    def update_beta(self): 
+      frac = min(1.0, self.total_steps / self.beta_p_anneal_steps) 
+      self.beta_p = self.beta_p_init + (self.beta_p_max - self.beta_p_init) * frac
+
+      

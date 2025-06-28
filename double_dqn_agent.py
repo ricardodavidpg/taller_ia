@@ -8,10 +8,10 @@ from abstract_agent import Agent
 import random
 
 class DoubleDQNAgent(Agent):
-    def __init__(self, gym_env, model_a, model_b, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma,
-                 epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device, sync_target = 1000):
+    def __init__(self, env, model_a, model_b, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma,
+                 epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, sync_target, device):
         
-        super().__init__(gym_env, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma, epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device)
+        super().__init__(env, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma, epsilon_i, epsilon_f, epsilon_anneal_steps, episode_block, device)
         # Inicializar online_net (model_a) y target_net (model_b) en device
         self.online_net = model_a.to(device)
         self.target_net = model_b.to(device)

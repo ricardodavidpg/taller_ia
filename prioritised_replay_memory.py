@@ -16,7 +16,7 @@ class PrioritisedReplayMemory:
         Params:
          - capacity (int): número máximo de transiciones a almacenar.
         """
-        self.device = 'cpu'
+        self.device = 'cuda'
         self.capacity = capacity
         self.memory = []
         self.transition_priorities = torch.ones(self.capacity, dtype=torch.float32, device=self.device)

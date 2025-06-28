@@ -35,14 +35,13 @@ class Agent(ABC):
     
     def train(self, number_episodes = 50_000, max_steps_episode = 10_000, max_steps=1_000_000):
       rewards = []
-      total_steps = 0
       
       metrics = {"reward": 0.0, "epsilon": self.epsilon_i, "steps": 0}
 
       pbar = tqdm(range(number_episodes), desc="Entrenando", unit="episode")
 
       for ep in pbar:
-        if total_steps > max_steps:
+        if self.total_steps > max_steps:
             break
         
         # Observar estado inicial como indica el algoritmo
@@ -53,10 +52,10 @@ class Agent(ABC):
 
         # Bucle principal de pasos dentro de un episodio
         for _ in range(max_steps_episode):
-            action = self.select_action(state, total_steps, train = True)
+            action = self.select_action(state, self.total_steps, train = True)
             next_state, reward, terminated, truncated, _ = self.env.step(action)
             current_episode_reward += reward
-            total_steps += 1
+            self.total_steps += 1
             current_episode_steps += 1
             done = terminated or truncated
             self.memory.add(state, action, reward, done, next_state)
@@ -67,8 +66,9 @@ class Agent(ABC):
         # Registro de métricas y progreso
         rewards.append(current_episode_reward)
         metrics["reward"] = np.mean(rewards[-self.episode_block:])
-        metrics["epsilon"] = self.compute_epsilon(total_steps)
-        metrics["steps"] = total_steps
+        metrics["epsilon"] = self.compute_epsilon(self.total_steps)
+
+        metrics["steps"] = self.total_steps
         pbar.set_postfix(metrics)
 
       # Guardar el modelo entrenado  
