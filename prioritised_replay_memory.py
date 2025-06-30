@@ -65,7 +65,7 @@ class PrioritisedReplayMemory:
       all_probabilities = priorities / priorities.sum()
 
       # Seleccionar índices de transiciones basados en la probabilidad
-      selected_index = torch.multinomial(all_probabilities, batch_size, replacement=False).to(self.device)    # Shape: (batch_size)
+      selected_index = torch.multinomial(all_probabilities, batch_size, replacement=False)   # Shape: (batch_size)
                   
       # Seleccionar las probabilidades de los elementos seleccionados
       selected_probabilities = all_probabilities[selected_index]                                              # Shape: (batch_size)
@@ -82,7 +82,7 @@ class PrioritisedReplayMemory:
        - indices (list): lista de índices de las transiciones a actualizar.
        - priorities (list): lista de nuevas prioridades para las transiciones.
       """
-      self.transition_priorities[index] = (priorities + self.epsilon_p).to(self.device)
+      self.transition_priorities[index] = (priorities + self.epsilon_p)
       
     def __len__(self):
       """

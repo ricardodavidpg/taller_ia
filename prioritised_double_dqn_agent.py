@@ -6,6 +6,7 @@ from prioritised_replay_memory import PrioritisedReplayMemory, Transition
 import numpy as np
 from abstract_agent import Agent
 import random
+import gc
 
 class PrioritisedDoubleDQNAgent(Agent):
     def __init__(self, gym_env, model_a, model_b, obs_processing_func, memory_buffer_size, batch_size, learning_rate, gamma,
@@ -55,13 +56,13 @@ class PrioritisedDoubleDQNAgent(Agent):
           # 2) Muestrear minibatch y convertir a tensores (states, actions, rewards, dones, next_states
           trasitions, transitions_probabilities, transitions_index = self.memory.sample(self.batch_size)
           satate_list, actions_list, reward_list, dones_list, next_state_list = zip(*trasitions)
-          state_batch = torch.stack(satate_list).to(self.device)                                                            # Shape: (batch_size, 4, 84, 84)
-          actions_batch = torch.stack(actions_list).to(self.device)                                                         # Shape: (batch_size, 1)
-          rewards_batch = torch.stack(reward_list).to(self.device)                                                          # Shape: (batch_size, 1)
-          dones_batch = torch.stack(dones_list).to(self.device)                                                             # Shape: (batch_size, 1)
-          next_state_batch = torch.stack(next_state_list).to(self.device)                                                   # Shape: (batch_size, 4, 84, 84)  
-          transitions_probabilities = transitions_probabilities.to(self.device)                                             # Shape: (batch_size) 
-          transitions_index = transitions_index.to(self.device)                                                             # Shape: (batch_size)
+          state_batch = torch.stack(satate_list)                                                           # Shape: (batch_size, 4, 84, 84)
+          actions_batch = torch.stack(actions_list)                                                        # Shape: (batch_size, 1)
+          rewards_batch = torch.stack(reward_list)                                                          # Shape: (batch_size, 1)
+          dones_batch = torch.stack(dones_list)                                                            # Shape: (batch_size, 1)
+          next_state_batch = torch.stack(next_state_list)                                                  # Shape: (batch_size, 4, 84, 84)  
+          transitions_probabilities = transitions_probabilities                                           # Shape: (batch_size) 
+          transitions_index = transitions_index                                                            # Shape: (batch_size)
 
           # 3) Calcular q_state_batch = online_net(state_batch)
           q_state_batch = self.online_net(state_batch)                                                                      # Shape: (batch_size, 4)                                                                                                          
@@ -93,6 +94,8 @@ class PrioritisedDoubleDQNAgent(Agent):
           if(self.sync_counter == 0):
              self.target_net.load_state_dict(self.online_net.state_dict())
              self.sync_counter = self.sync_target
+          
+          del loss, weighted_loss, td_error  # o usá names más específicos
             
     def saveModel(self):
       torch.save(self.online_net.state_dict(), "PrioritisedDDQNAgent.dat") 
